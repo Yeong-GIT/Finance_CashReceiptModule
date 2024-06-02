@@ -16,6 +16,10 @@ public class CashReceipt {
     private BigDecimal amount;
     private LocalDate receiptDate;
     
+    // Default constructor
+    public CashReceipt() {
+    }
+
     public CashReceipt(Long id, String customerName, BigDecimal amount, LocalDate receiptDate) {
         this.id = id;
         this.customerName = customerName;
