@@ -2,18 +2,29 @@ package gityeong.CashReceipt.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "cash_receipt")
 public class CashReceipt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "customer_name", nullable = false)
     private String customerName;
+
+    @Column(name = "amount", nullable = false)
     private BigDecimal amount;
+
+    @Column(name = "receipt_date", nullable = false)
     private LocalDate receiptDate;
     
     // Default constructor
