@@ -14,7 +14,6 @@ export const updateCashReceipt = async (id, receipt) => {
     return await axios.put(`${API_URL}/update/${id}`, receipt);
 };
 
-
 export const deleteCashReceipt = async (id) => {
     return await axios.delete(`${API_URL}/delete/${id}`);
 };

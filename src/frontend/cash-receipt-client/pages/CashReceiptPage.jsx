@@ -4,12 +4,15 @@ import CashReceiptForm from '../components/CashReceiptForm';
 
 const CashReceiptPage = () => {
     const [receipts, setReceipts] = useState([]);
+    const [filteredReceipts, setFilteredReceipts] = useState([]);
     const [selectedReceipt, setSelectedReceipt] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const fetchReceipts = async () => {
             const response = await getAllCashReceipts();
             setReceipts(response.data);
+            setFilteredReceipts(response.data);
         };
         fetchReceipts();
     }, []);
@@ -23,6 +26,7 @@ const CashReceiptPage = () => {
         // Fetch updated list
         const response = await getAllCashReceipts();
         setReceipts(response.data);
+        setFilteredReceipts(response.data);
     };
 
     const handleUpdateClick = (receipt) => {
@@ -34,11 +38,28 @@ const CashReceiptPage = () => {
         // Fetch updated list
         const response = await getAllCashReceipts();
         setReceipts(response.data);
+        setFilteredReceipts(response.data);
+    };
+
+    const handleSearch = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        if (query) {
+            setFilteredReceipts(receipts.filter(receipt => receipt.customerName.toLowerCase().includes(query.toLowerCase())));
+        } else {
+            setFilteredReceipts(receipts);
+        }
     };
 
     return (
         <div>
             <h1>Cash Receipts</h1>
+            <input
+                type="text"
+                placeholder="Search by Customer Name"
+                value={searchQuery}
+                onChange={handleSearch}
+            />
             <CashReceiptForm onSubmit={handleSubmit} selectedReceipt={selectedReceipt} setSelectedReceipt={setSelectedReceipt} />
             <table>
                 <thead>
@@ -51,7 +72,7 @@ const CashReceiptPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {receipts.map(receipt => (
+                    {filteredReceipts.map(receipt => (
                         <tr key={receipt.id}>
                             <td>{receipt.id}</td>
                             <td>{receipt.customerName}</td>
