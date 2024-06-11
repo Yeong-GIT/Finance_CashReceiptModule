@@ -25,12 +25,12 @@ public class CashReceiptController {
     @Autowired
     private CashReceiptService service;
 
-    @GetMapping("/receipts/getall")
+    @GetMapping("/receipts")
     public ResponseEntity<List<CashReceipt>> getAllCashReceipts(){
         return new ResponseEntity<>(service.getAllCashReceiptsInSequence(), HttpStatus.OK);
     }
 
-    @GetMapping("/receipts/get/{id}")
+    @GetMapping("/receipts/{id}")
     public ResponseEntity<CashReceipt> getCashReceiptById(@PathVariable Long id) {
         try {
             CashReceipt receipt = service.findById(id);
@@ -40,12 +40,12 @@ public class CashReceiptController {
         }
     }
 
-    @PostMapping("/receipts/create")
+    @PostMapping("/receipts")
     public ResponseEntity<CashReceipt> createCashReceipt(@RequestBody CashReceipt receipt) {
         return new ResponseEntity<>(service.createCashReceipt(receipt), HttpStatus.CREATED);
     }
 
-    @PutMapping("/receipts/update/{id}")
+    @PutMapping("/receipts/{id}")
     public ResponseEntity<CashReceipt> updateCashReceipt(@PathVariable Long id, @RequestBody CashReceipt receipt){
         CashReceipt updateReceipt = service.updateCashReceipt(id, receipt);
         if(updateReceipt != null){
@@ -55,7 +55,7 @@ public class CashReceiptController {
         }
     }
 
-    @DeleteMapping("receipts/delete/{id}")
+    @DeleteMapping("/receipts/{id}")
     public ResponseEntity<Void> deleteCashReceipt(@PathVariable Long id) {
         try {
             service.deleteCashReceipt(id);
