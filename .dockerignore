@@ -1,0 +1,7 @@
+frontend/cash-receipt-client/node_modules
+target
+.git
+.idea
+.vscode
+*.log
+*.tmp
