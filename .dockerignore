@@ -1,7 +1,31 @@
-frontend/cash-receipt-client/node_modules
-target
-.git
+# Exclude target directory except the final JAR file
+/target/*
+!/target/CashReceipt-0.0.1.jar
+
+# Exclude frontend build files if not needed in the backend image
+/src/frontend/*
+
+# Exclude IDE project files
 .idea
 .vscode
-*.log
+
+# Exclude Git directory
+.git
+.gitignore
+
+# Exclude Docker-related files to avoid copying them into the image
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Exclude test files
+/src/test/*
+
+# Exclude temporary files
 *.tmp
+*.log
+*.swp
+
+# Exclude any OS-specific files
+.DS_Store
+Thumbs.db
