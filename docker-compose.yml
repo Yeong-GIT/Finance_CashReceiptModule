@@ -26,6 +26,15 @@ services:
     networks:
       - cashreceipt-network
 
+  cash-receipt-client:
+    build:
+      context: ./src/frontend/cash-receipt-client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Port 3000 on host maps to port 80 on the container (Nginx default)
+    networks:
+      - cashreceipt-network
+
 networks:
   cashreceipt-network:
     driver: bridge
