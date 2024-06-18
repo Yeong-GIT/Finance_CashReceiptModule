@@ -13,6 +13,9 @@ target/
 .springBeans
 .sts4-cache
 
+# Ignore compiled class files
+*.class
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
