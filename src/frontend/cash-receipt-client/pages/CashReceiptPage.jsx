@@ -1,6 +1,9 @@
+// src/pages/CashReceiptPage.jsx
+
 import { useState, useEffect } from 'react';
 import { createCashReceipt, getAllCashReceipts, updateCashReceipt, deleteCashReceipt } from '../services/CashReceiptService';
 import CashReceiptForm from '../components/CashReceiptForm';
+import GenerateDataButton from '../utils/GenerateDataButton';  // Import the button component
 
 const CashReceiptPage = () => {
     const [receipts, setReceipts] = useState([]);
@@ -51,6 +54,13 @@ const CashReceiptPage = () => {
         }
     };
 
+    // Function to refresh receipts
+    const refreshReceipts = async () => {
+        const response = await getAllCashReceipts();
+        setReceipts(response.data);
+        setFilteredReceipts(response.data);
+    };
+
     return (
         <div>
             <h1>Cash Receipts</h1>
@@ -61,6 +71,7 @@ const CashReceiptPage = () => {
                 onChange={handleSearch}
             />
             <CashReceiptForm onSubmit={handleSubmit} selectedReceipt={selectedReceipt} setSelectedReceipt={setSelectedReceipt} />
+            <GenerateDataButton onGenerated={refreshReceipts} /> {/* Add the button here */}
             <table>
                 <thead>
                     <tr>
