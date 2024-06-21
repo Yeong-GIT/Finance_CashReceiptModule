@@ -14,16 +14,17 @@ const CashReceiptPage = () => {
             const response = await getAllCashReceipts();
             setReceipts(response.data);
 
-            // Initialize DataTable
+            // Initialize DataTable if not already initialized
             if (!$.fn.dataTable.isDataTable('#cashReceiptsTable')) {
                 tableRef.current = $('#cashReceiptsTable').DataTable({
                     data: response.data,
                     responsive: true,
                     paging: true,
                     pageLength: 10,
-                    lengthChange: false,
+                    lengthChange: true, // Enable changing the number of rows per page
+                    lengthMenu: [5, 10, 25, 50], // Options for the number of rows to display
                     searching: true,
-                    info: false,
+                    info: true, // Enable table info display (e.g., "Showing 1 to 10 of 57 entries")
                     columns: [
                         { data: 'id' },
                         { data: 'customerName' },
@@ -46,6 +47,7 @@ const CashReceiptPage = () => {
 
         fetchReceipts();
 
+        // Cleanup function to destroy the table on component unmount
         return () => {
             if ($.fn.dataTable.isDataTable('#cashReceiptsTable')) {
                 $('#cashReceiptsTable').DataTable().destroy();
