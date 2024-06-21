@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createCashReceipt, getAllCashReceipts, updateCashReceipt, deleteCashReceipt } from '../services/CashReceiptService';
-import CashReceiptForm from '../components/CashReceiptForm';
 import GenerateDataButton from '../utils/GenerateDataButton';
 
 const CashReceiptPage = () => {
     const [receipts, setReceipts] = useState([]);
     const [selectedReceipt, setSelectedReceipt] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const tableRef = useRef(null);
 
     useEffect(() => {
@@ -40,7 +38,44 @@ const CashReceiptPage = () => {
                             }
                         }
                     ],
-                    destroy: true // Ensures the table is reinitialized on each render
+                    destroy: true, // Ensures the table is reinitialized on each render
+                    dom: 'lfrtip', // Include length change control (l) and filter (f) in the DataTable
+                    initComplete: function () {
+                        // Integrate the form fields into the DataTable header
+                        $('#cashReceiptsTable_filter').prepend(`
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="customerNameInput" placeholder="Customer Name" style="width: 150px;" />
+                                <input type="number" id="amountInput" placeholder="Amount" style="width: 100px;" />
+                                <input type="date" id="receiptDateInput" style="width: 150px;" />
+                                <button id="addReceiptBtn">Add Cash Receipt</button>
+                            </div>
+                        `);
+                        
+                        // Attach event listener to the "Add Cash Receipt" button
+                        $('#addReceiptBtn').on('click', async () => {
+                            const customerName = $('#customerNameInput').val();
+                            const amount = $('#amountInput').val();
+                            const receiptDate = $('#receiptDateInput').val();
+                            
+                            if (customerName && amount && receiptDate) {
+                                const newReceipt = {
+                                    customerName,
+                                    amount: parseFloat(amount),
+                                    receiptDate
+                                };
+                                await createCashReceipt(newReceipt);
+                                const response = await getAllCashReceipts();
+                                setReceipts(response.data);
+
+                                // Clear the input fields after adding a new receipt
+                                $('#customerNameInput').val('');
+                                $('#amountInput').val('');
+                                $('#receiptDateInput').val('');
+                            } else {
+                                alert("Please fill in all fields.");
+                            }
+                        });
+                    }
                 });
             }
         };
@@ -65,6 +100,9 @@ const CashReceiptPage = () => {
                 const id = $(this).data('id');
                 const receipt = receipts.find(receipt => receipt.id === id);
                 setSelectedReceipt(receipt);
+                $('#customerNameInput').val(receipt.customerName);
+                $('#amountInput').val(receipt.amount);
+                $('#receiptDateInput').val(receipt.receiptDate);
             });
 
             $('#cashReceiptsTable tbody').off('click', '.delete-btn').on('click', '.delete-btn', async function () {
@@ -77,22 +115,6 @@ const CashReceiptPage = () => {
         }
     }, [receipts]);
 
-    const handleSubmit = async (receipt, id) => {
-        if (id) {
-            await updateCashReceipt(id, receipt);
-        } else {
-            await createCashReceipt(receipt);
-        }
-        const response = await getAllCashReceipts();
-        setReceipts(response.data);
-    };
-
-    const handleSearch = (e) => {
-        const query = e.target.value;
-        setSearchQuery(query);
-        tableRef.current.search(query).draw();
-    };
-
     const refreshReceipts = async () => {
         const response = await getAllCashReceipts();
         setReceipts(response.data);
@@ -101,15 +123,7 @@ const CashReceiptPage = () => {
     return (
         <div>
             <h1>Cash Receipts</h1>
-            <input
-                type="text"
-                placeholder="Search by Customer Name"
-                value={searchQuery}
-                onChange={handleSearch}
-            />
-            <CashReceiptForm onSubmit={handleSubmit} selectedReceipt={selectedReceipt} setSelectedReceipt={setSelectedReceipt} />
             <GenerateDataButton onGenerated={refreshReceipts} />
-
             <table id="cashReceiptsTable" className="display responsive nowrap" style={{ width: '100%' }}>
                 <thead>
                     <tr>
