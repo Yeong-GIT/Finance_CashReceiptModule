@@ -1,25 +1,79 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createCashReceipt, getAllCashReceipts, updateCashReceipt, deleteCashReceipt } from '../services/CashReceiptService';
 import CashReceiptForm from '../components/CashReceiptForm';
 import GenerateDataButton from '../utils/GenerateDataButton';
 
 const CashReceiptPage = () => {
     const [receipts, setReceipts] = useState([]);
-    const [filteredReceipts, setFilteredReceipts] = useState([]);
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const receiptsPerPage = 10;
-    const pageRangeDisplayed = 5; // Number of page buttons to display at a time
+    const tableRef = useRef(null);
 
     useEffect(() => {
         const fetchReceipts = async () => {
             const response = await getAllCashReceipts();
             setReceipts(response.data);
-            setFilteredReceipts(response.data);
+
+            // Initialize DataTable
+            if (!$.fn.dataTable.isDataTable('#cashReceiptsTable')) {
+                tableRef.current = $('#cashReceiptsTable').DataTable({
+                    data: response.data,
+                    responsive: true,
+                    paging: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    searching: true,
+                    info: false,
+                    columns: [
+                        { data: 'id' },
+                        { data: 'customerName' },
+                        { data: 'amount' },
+                        { data: 'receiptDate' },
+                        {
+                            data: null,
+                            render: (data, type, row) => {
+                                return `
+                                    <button class="update-btn" data-id="${row.id}">Update</button>
+                                    <button class="delete-btn" data-id="${row.id}">Delete</button>
+                                `;
+                            }
+                        }
+                    ],
+                    destroy: true // Ensures the table is reinitialized on each render
+                });
+            }
         };
+
         fetchReceipts();
+
+        return () => {
+            if ($.fn.dataTable.isDataTable('#cashReceiptsTable')) {
+                $('#cashReceiptsTable').DataTable().destroy();
+            }
+        };
     }, []);
+
+    useEffect(() => {
+        if (tableRef.current) {
+            // Re-draw the DataTable with updated data when receipts state changes
+            tableRef.current.clear().rows.add(receipts).draw();
+
+            // Attach React event handlers to buttons after DataTables rendering
+            $('#cashReceiptsTable tbody').off('click', '.update-btn').on('click', '.update-btn', function () {
+                const id = $(this).data('id');
+                const receipt = receipts.find(receipt => receipt.id === id);
+                setSelectedReceipt(receipt);
+            });
+
+            $('#cashReceiptsTable tbody').off('click', '.delete-btn').on('click', '.delete-btn', async function () {
+                const id = $(this).data('id');
+                await deleteCashReceipt(id);
+                const response = await getAllCashReceipts();
+                setReceipts(response.data);
+                tableRef.current.clear().rows.add(response.data).draw();
+            });
+        }
+    }, [receipts]);
 
     const handleSubmit = async (receipt, id) => {
         if (id) {
@@ -29,60 +83,18 @@ const CashReceiptPage = () => {
         }
         const response = await getAllCashReceipts();
         setReceipts(response.data);
-        setFilteredReceipts(response.data);
-        setCurrentPage(1);
-    };
-
-    const handleUpdateClick = (receipt) => {
-        setSelectedReceipt(receipt);
-    };
-
-    const handleDeleteClick = async (id) => {
-        await deleteCashReceipt(id);
-        const response = await getAllCashReceipts();
-        setReceipts(response.data);
-        setFilteredReceipts(response.data);
-        setCurrentPage(1);
     };
 
     const handleSearch = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
-        if (query) {
-            setFilteredReceipts(receipts.filter(receipt => receipt.customerName.toLowerCase().includes(query.toLowerCase())));
-        } else {
-            setFilteredReceipts(receipts);
-        }
-        setCurrentPage(1);
+        tableRef.current.search(query).draw();
     };
 
     const refreshReceipts = async () => {
         const response = await getAllCashReceipts();
         setReceipts(response.data);
-        setFilteredReceipts(response.data);
-        setCurrentPage(1);
     };
-
-    const indexOfLastReceipt = currentPage * receiptsPerPage;
-    const indexOfFirstReceipt = indexOfLastReceipt - receiptsPerPage;
-    const currentReceipts = filteredReceipts.slice(indexOfFirstReceipt, indexOfLastReceipt);
-
-    const totalPages = Math.ceil(filteredReceipts.length / receiptsPerPage);
-
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
-
-    // Calculate the range of page numbers to display
-    const getPageNumbers = () => {
-        const totalPageNumbers = totalPages > pageRangeDisplayed ? pageRangeDisplayed : totalPages;
-        const startPage = Math.max(1, currentPage - Math.floor(totalPageNumbers / 2));
-        const endPage = Math.min(totalPages, startPage + totalPageNumbers - 1);
-
-        return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
-    };
-
-    const pageNumbers = getPageNumbers();
 
     return (
         <div>
@@ -96,7 +108,7 @@ const CashReceiptPage = () => {
             <CashReceiptForm onSubmit={handleSubmit} selectedReceipt={selectedReceipt} setSelectedReceipt={setSelectedReceipt} />
             <GenerateDataButton onGenerated={refreshReceipts} />
 
-            <table>
+            <table id="cashReceiptsTable" className="display responsive nowrap" style={{ width: '100%' }}>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -107,49 +119,9 @@ const CashReceiptPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentReceipts.map(receipt => (
-                        <tr key={receipt.id}>
-                            <td>{receipt.id}</td>
-                            <td>{receipt.customerName}</td>
-                            <td>{receipt.amount}</td>
-                            <td>{receipt.receiptDate}</td>
-                            <td>
-                                <button onClick={() => handleUpdateClick(receipt)}>Update</button>
-                                <button onClick={() => handleDeleteClick(receipt.id)}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
+                    {/* DataTables will handle data rendering */}
                 </tbody>
             </table>
-
-            {totalPages > 1 && (
-                <div className="pagination-container">
-                    <p>Page {currentPage}</p>
-                    <div className="pagination">
-                        <button
-                            onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                            disabled={currentPage === 1}
-                        >
-                            Previous
-                        </button>
-                        {pageNumbers.map(number => (
-                            <button
-                                key={number}
-                                onClick={() => handlePageChange(number)}
-                                className={currentPage === number ? 'active' : ''}
-                            >
-                                {number}
-                            </button>
-                        ))}
-                        <button
-                            onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
