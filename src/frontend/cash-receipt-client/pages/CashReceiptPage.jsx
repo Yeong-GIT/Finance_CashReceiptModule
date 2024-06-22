@@ -6,23 +6,23 @@ const CashReceiptPage = () => {
     const [receipts, setReceipts] = useState([]);
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const tableRef = useRef(null);
+    const isTableInitialized = useRef(false);
 
     useEffect(() => {
         const fetchReceipts = async () => {
             const response = await getAllCashReceipts();
             setReceipts(response.data);
 
-            // Initialize DataTable if not already initialized
-            if (!$.fn.dataTable.isDataTable('#cashReceiptsTable')) {
+            if (!isTableInitialized.current) {
                 tableRef.current = $('#cashReceiptsTable').DataTable({
                     data: response.data,
                     responsive: true,
                     paging: true,
                     pageLength: 10,
-                    lengthChange: true, // Enable changing the number of rows per page
-                    lengthMenu: [5, 10, 25, 50], // Options for the number of rows to display
+                    lengthChange: true,
+                    lengthMenu: [5, 10, 25, 50],
                     searching: true,
-                    info: true, // Enable table info display (e.g., "Showing 1 to 10 of 57 entries")
+                    info: true,
                     columns: [
                         { data: 'id' },
                         { data: 'customerName' },
@@ -30,33 +30,97 @@ const CashReceiptPage = () => {
                         { data: 'receiptDate' },
                         {
                             data: null,
-                            render: (data, type, row) => {
-                                return `
-                                    <button class="update-btn" data-id="${row.id}">Update</button>
-                                    <button class="delete-btn" data-id="${row.id}">Delete</button>
-                                `;
-                            }
+                            render: (data, type, row) => `
+                                <button class="update-btn" data-id="${row.id}">Update</button>
+                                <button class="delete-btn" data-id="${row.id}">Delete</button>
+                            `
                         }
                     ],
-                    destroy: true, // Ensures the table is reinitialized on each render
-                    dom: 'lfrtip', // Include length change control (l) and filter (f) in the DataTable
+                    destroy: true,
+                    dom: 'lfrtip',
                     initComplete: function () {
-                        // Integrate the form fields into the DataTable header
                         $('#cashReceiptsTable_filter').prepend(`
                             <div style="display: flex; gap: 10px;">
                                 <input type="text" id="customerNameInput" placeholder="Customer Name" style="width: 150px;" />
                                 <input type="number" id="amountInput" placeholder="Amount" style="width: 100px;" />
                                 <input type="date" id="receiptDateInput" style="width: 150px;" />
-                                <button id="addReceiptBtn">Add Cash Receipt</button>
+                                <button id="addReceiptBtn" class="btn btn-success">Add Cash Receipt</button>
                             </div>
                         `);
-                        
-                        // Attach event listener to the "Add Cash Receipt" button
+
                         $('#addReceiptBtn').on('click', async () => {
                             const customerName = $('#customerNameInput').val();
                             const amount = $('#amountInput').val();
                             const receiptDate = $('#receiptDateInput').val();
-                            
+
+                            if (customerName && amount && receiptDate) {
+                                const newReceipt = {
+                                    customerName,
+                                    amount: parseFloat(amount),
+                                    receiptDate
+                                };
+
+                                if (selectedReceipt) {
+                                    // Update the existing receipt
+                                    await updateCashReceipt(selectedReceipt.id, newReceipt);
+                                    setSelectedReceipt(null);
+                                    $('#addReceiptBtn').text('Add Cash Receipt'); // Reset button text to Add
+                                } else {
+                                    // Add a new receipt
+                                    await createCashReceipt(newReceipt);
+                                }
+
+                                const response = await getAllCashReceipts();
+                                setReceipts(response.data);
+
+                                // Clear the input fields after the action
+                                $('#customerNameInput').val('');
+                                $('#amountInput').val('');
+                                $('#receiptDateInput').val('');
+                            } else {
+                                alert("Please fill in all fields.");
+                            }
+                        });
+                    }
+                });
+                isTableInitialized.current = true;
+            }
+        };
+
+        fetchReceipts();
+
+        return () => {
+            if ($.fn.dataTable.isDataTable('#cashReceiptsTable')) {
+                $('#cashReceiptsTable').DataTable().destroy();
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (tableRef.current) {
+            tableRef.current.clear().rows.add(receipts).draw(false);
+
+            $('#cashReceiptsTable tbody').off('click', '.update-btn').on('click', '.update-btn', function () {
+                const id = $(this).data('id');
+                const receipt = receipts.find(receipt => receipt.id === id);
+                setSelectedReceipt(receipt);
+                $('#customerNameInput').val(receipt.customerName);
+                $('#amountInput').val(receipt.amount);
+                $('#receiptDateInput').val(receipt.receiptDate);
+                $('#addReceiptBtn').text('Update Cash Receipt').off('click').on('click', async () => {
+                    const updatedReceipt = {
+                        customerName: $('#customerNameInput').val(),
+                        amount: parseFloat($('#amountInput').val()),
+                        receiptDate: $('#receiptDateInput').val()
+                    };
+                    if (updatedReceipt.customerName && updatedReceipt.amount && updatedReceipt.receiptDate) {
+                        await updateCashReceipt(id, updatedReceipt);
+                        setSelectedReceipt(null);
+                        $('#addReceiptBtn').text('Add Cash Receipt').off('click').on('click', async () => {
+                            const customerName = $('#customerNameInput').val();
+                            const amount = $('#amountInput').val();
+                            const receiptDate = $('#receiptDateInput').val();
+
                             if (customerName && amount && receiptDate) {
                                 const newReceipt = {
                                     customerName,
@@ -67,7 +131,6 @@ const CashReceiptPage = () => {
                                 const response = await getAllCashReceipts();
                                 setReceipts(response.data);
 
-                                // Clear the input fields after adding a new receipt
                                 $('#customerNameInput').val('');
                                 $('#amountInput').val('');
                                 $('#receiptDateInput').val('');
@@ -75,34 +138,17 @@ const CashReceiptPage = () => {
                                 alert("Please fill in all fields.");
                             }
                         });
+
+                        const response = await getAllCashReceipts();
+                        setReceipts(response.data);
+
+                        $('#customerNameInput').val('');
+                        $('#amountInput').val('');
+                        $('#receiptDateInput').val('');
+                    } else {
+                        alert("Please fill in all fields.");
                     }
                 });
-            }
-        };
-
-        fetchReceipts();
-
-        // Cleanup function to destroy the table on component unmount
-        return () => {
-            if ($.fn.dataTable.isDataTable('#cashReceiptsTable')) {
-                $('#cashReceiptsTable').DataTable().destroy();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if (tableRef.current) {
-            // Re-draw the DataTable with updated data when receipts state changes
-            tableRef.current.clear().rows.add(receipts).draw();
-
-            // Attach React event handlers to buttons after DataTables rendering
-            $('#cashReceiptsTable tbody').off('click', '.update-btn').on('click', '.update-btn', function () {
-                const id = $(this).data('id');
-                const receipt = receipts.find(receipt => receipt.id === id);
-                setSelectedReceipt(receipt);
-                $('#customerNameInput').val(receipt.customerName);
-                $('#amountInput').val(receipt.amount);
-                $('#receiptDateInput').val(receipt.receiptDate);
             });
 
             $('#cashReceiptsTable tbody').off('click', '.delete-btn').on('click', '.delete-btn', async function () {
@@ -110,7 +156,7 @@ const CashReceiptPage = () => {
                 await deleteCashReceipt(id);
                 const response = await getAllCashReceipts();
                 setReceipts(response.data);
-                tableRef.current.clear().rows.add(response.data).draw();
+                tableRef.current.clear().rows.add(response.data).draw(false);
             });
         }
     }, [receipts]);
