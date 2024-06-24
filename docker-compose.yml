@@ -13,6 +13,7 @@ services:
       - "5432:5432"
     networks:
       - cashreceipt-network
+      - finance-network  # Connect to the shared finance network
 
   # CashReceipt Backend Service
   cashreceipt-service:
@@ -26,8 +27,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-cashreceiptdb:5432/cashreceiptdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # Connect to Kafka via the finance network
     networks:
       - cashreceipt-network
+      - finance-network
 
   # CashReceipt Frontend Service
   cashreceipt-client:
@@ -43,6 +46,8 @@ services:
 networks:
   cashreceipt-network:
     driver: bridge
+  finance-network:
+    external: true  # Indicates this network is shared with other docker-compose files
 
 volumes:
   postgres-cashreceipt-data:
