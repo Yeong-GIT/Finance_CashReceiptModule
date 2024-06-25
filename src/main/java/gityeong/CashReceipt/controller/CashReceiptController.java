@@ -1,22 +1,14 @@
 package gityeong.CashReceipt.controller;
 
-import java.util.List;
-
+import gityeong.CashReceipt.entity.CashReceipt;
+import gityeong.CashReceipt.service.CashReceiptService;
+// import gityeong.CashReceipt.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import gityeong.CashReceipt.entity.CashReceipt;
-import gityeong.CashReceipt.service.KafkaProducerService;
-import gityeong.CashReceipt.service.CashReceiptService;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -24,8 +16,8 @@ public class CashReceiptController {
     @Autowired
     private CashReceiptService service;
 
-    @Autowired
-    private KafkaProducerService kafkaProducerService; // Inject KafkaProducerService
+    // @Autowired
+    // private KafkaProducerService kafkaProducerService; // Inject KafkaProducerService
 
     @GetMapping("/receipts")
     public ResponseEntity<List<CashReceipt>> getAllCashReceipts(){
@@ -46,12 +38,12 @@ public class CashReceiptController {
     public ResponseEntity<CashReceipt> createCashReceipt(@RequestBody CashReceipt receipt) {
         CashReceipt savedReceipt = service.createCashReceipt(receipt);
 
-        //Send Kafka message after successfully creating the cash receipt
-        String message = String.format("Cash receipt created: ID=%d, Amount=%.2f, Date=%s",
-                savedReceipt.getId(), savedReceipt.getAmount(), savedReceipt.getReceiptDate());
-        kafkaProducerService.sendMessage("cash-receipt-topic", message);
+        // Send Kafka message after successfully creating the cash receipt
+        // String message = String.format("Cash receipt created: ID=%d, Amount=%.2f, Date=%s",
+        //         savedReceipt.getId(), savedReceipt.getAmount(), savedReceipt.getReceiptDate());
+        // kafkaProducerService.sendMessage("cash-receipt-topic", message);
 
-        return new ResponseEntity<>(service.createCashReceipt(receipt), HttpStatus.CREATED);
+        return new ResponseEntity<>(savedReceipt, HttpStatus.CREATED);
     }
 
     @PutMapping("/receipts/{id}")
@@ -59,9 +51,9 @@ public class CashReceiptController {
         CashReceipt updateReceipt = service.updateCashReceipt(id, receipt);
         if(updateReceipt != null){
             // Send Kafka message after successfully updating the cash receipt
-            String message = String.format("Cash receipt updated: ID=%d, Amount=%.2f, Date=%s",
-                    updateReceipt.getId(), updateReceipt.getAmount(), updateReceipt.getReceiptDate());
-            kafkaProducerService.sendMessage("cash-receipt-topic", message);
+            // String message = String.format("Cash receipt updated: ID=%d, Amount=%.2f, Date=%s",
+            //         updateReceipt.getId(), updateReceipt.getAmount(), updateReceipt.getReceiptDate());
+            // kafkaProducerService.sendMessage("cash-receipt-topic", message);
 
             return new ResponseEntity<>(updateReceipt, HttpStatus.OK);
         }else{
@@ -75,13 +67,12 @@ public class CashReceiptController {
             service.deleteCashReceipt(id);
 
             // Send Kafka message after successfully deleting the cash receipt
-            String message = String.format("Cash receipt deleted: ID=%d", id);
-            kafkaProducerService.sendMessage("cash-receipt-topic", message);
+            // String message = String.format("Cash receipt deleted: ID=%d", id);
+            // kafkaProducerService.sendMessage("cash-receipt-topic", message);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
 }
