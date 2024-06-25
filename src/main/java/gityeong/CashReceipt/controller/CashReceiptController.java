@@ -2,7 +2,9 @@ package gityeong.CashReceipt.controller;
 
 import gityeong.CashReceipt.entity.CashReceipt;
 import gityeong.CashReceipt.service.CashReceiptService;
-// import gityeong.CashReceipt.service.KafkaProducerService;
+import gityeong.CashReceipt.service.KafkaProducerService;
+import gityeong.CashReceipt.service.KafkaProducerService;
+import org.apache.kafka.common.network.Send;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,8 @@ public class CashReceiptController {
     @Autowired
     private CashReceiptService service;
 
-    // @Autowired
-    // private KafkaProducerService kafkaProducerService; // Inject KafkaProducerService
+     @Autowired
+     private KafkaProducerService kafkaProducerService;
 
     @GetMapping("/receipts")
     public ResponseEntity<List<CashReceipt>> getAllCashReceipts(){
@@ -39,9 +41,9 @@ public class CashReceiptController {
         CashReceipt savedReceipt = service.createCashReceipt(receipt);
 
         // Send Kafka message after successfully creating the cash receipt
-        // String message = String.format("Cash receipt created: ID=%d, Amount=%.2f, Date=%s",
-        //         savedReceipt.getId(), savedReceipt.getAmount(), savedReceipt.getReceiptDate());
-        // kafkaProducerService.sendMessage("cash-receipt-topic", message);
+         String message = String.format("Cash receipt created: ID=%d, Amount=%.2f, Date=%s",
+                 savedReceipt.getId(), savedReceipt.getAmount(), savedReceipt.getReceiptDate());
+         kafkaProducerService.sendMessage("cash-receipt-topic", message);
 
         return new ResponseEntity<>(savedReceipt, HttpStatus.CREATED);
     }
@@ -51,9 +53,9 @@ public class CashReceiptController {
         CashReceipt updateReceipt = service.updateCashReceipt(id, receipt);
         if(updateReceipt != null){
             // Send Kafka message after successfully updating the cash receipt
-            // String message = String.format("Cash receipt updated: ID=%d, Amount=%.2f, Date=%s",
-            //         updateReceipt.getId(), updateReceipt.getAmount(), updateReceipt.getReceiptDate());
-            // kafkaProducerService.sendMessage("cash-receipt-topic", message);
+             String message = String.format("Cash receipt updated: ID=%d, Amount=%.2f, Date=%s",
+                     updateReceipt.getId(), updateReceipt.getAmount(), updateReceipt.getReceiptDate());
+             kafkaProducerService.sendMessage("cash-receipt-topic", message);
 
             return new ResponseEntity<>(updateReceipt, HttpStatus.OK);
         }else{
@@ -67,8 +69,8 @@ public class CashReceiptController {
             service.deleteCashReceipt(id);
 
             // Send Kafka message after successfully deleting the cash receipt
-            // String message = String.format("Cash receipt deleted: ID=%d", id);
-            // kafkaProducerService.sendMessage("cash-receipt-topic", message);
+             String message = String.format("Cash receipt deleted: ID=%d", id);
+             kafkaProducerService.sendMessage("cash-receipt-topic", message);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
