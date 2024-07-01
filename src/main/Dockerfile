@@ -11,11 +11,19 @@ COPY ../../target/CashReceipt-0.0.1.jar /app/CashReceipt-0.0.1.jar
 # Copy the Python script into the container
 COPY src/main/scripts/generateCashReceipts.py /app/scripts/generateCashReceipts.py
 
-# Update package lists and install Python 3 and pip
-RUN apt-get update && apt-get install -y python3 python3-pip
+# Update package lists and install Python 3, pip, required packages, and ping
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip curl iputils-ping && \
+    pip3 install requests faker
 
-# Install the required Python packages
-RUN pip3 install requests faker
+# Download and install Kafka tools
+RUN curl -O https://archive.apache.org/dist/kafka/2.8.0/kafka_2.13-2.8.0.tgz && \
+    tar -xzf kafka_2.13-2.8.0.tgz && \
+    mv kafka_2.13-2.8.0 /opt/kafka && \
+    rm kafka_2.13-2.8.0.tgz
+
+# Add Kafka tools to PATH
+ENV PATH=$PATH:/opt/kafka/bin
 
 # Expose the port that the application will run on
 EXPOSE 8080

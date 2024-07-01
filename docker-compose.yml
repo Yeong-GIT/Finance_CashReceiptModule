@@ -1,7 +1,9 @@
+version: '3.8'
+
 services:
-  zookeeper:
+  zookeeper-cashreceipt:
     image: confluentinc/cp-zookeeper:7.6.1
-    container_name: zookeeper
+    container_name: zookeeper-cashreceipt
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -11,22 +13,17 @@ services:
       - finance-network
     volumes:
       - zookeeper-data:/var/lib/zookeeper
-    healthcheck:
-      test: ["CMD-SHELL", "echo ruok | nc 127.0.0.1 2181 | grep imok"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
-  kafka:
+  kafka-cashreceipt:
     image: confluentinc/cp-kafka:7.6.1
-    container_name: kafka
+    container_name: kafka-cashreceipt
     depends_on:
-      - zookeeper
+      - zookeeper-cashreceipt
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-cashreceipt:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka-cashreceipt:29092,OUTSIDE://localhost:9092
       KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -36,11 +33,6 @@ services:
       - finance-network
     volumes:
       - kafka-data:/var/lib/kafka/data
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   postgres-cashreceiptdb:
     image: postgres:15-alpine
@@ -55,11 +47,6 @@ services:
       - "5432:5432"
     networks:
       - finance-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   cashreceipt-service:
     build:
@@ -72,7 +59,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-cashreceiptdb:5432/cashreceiptdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 1234
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092  # Connect to Kafka via internal network
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-cashreceipt:29092
     networks:
       - finance-network
 
@@ -88,7 +75,7 @@ services:
 
 networks:
   finance-network:
-    driver: bridge
+    external: true
 
 volumes:
   postgres-cashreceipt-data:
