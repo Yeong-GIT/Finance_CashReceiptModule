@@ -71,6 +71,7 @@ To run the frontend in development mode:
 ### Data Table Plugins
 - Pagination, Sort and Search Functionality
 - CRUD actions with Generate, Create, Update, Delete Buttons
+
 ![FrontEnd](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/2647b137-593b-44eb-8340-7a7e3a6feeee)
 
 ## Backend Development
@@ -83,6 +84,8 @@ To run the frontend in development mode:
 
 ### Kafka Topics
 - `cash-receipt-topic`: Produce message to prompt message for CRUD actions
+
+![KafkaMessage](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/97985167-a060-4dc4-a73b-6ebdea523ca9)
 
 ## Code Examples
 
@@ -171,9 +174,6 @@ public class CashReceiptController {
 
 This controller handles CRUD operations for cash receipts and integrates with Kafka for messaging.
 
-![KafkaMessage](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/89d5f851-0276-4a65-a4d9-df969588cb9c)
-
-
 ### Python Scripts
 
 - `generateCashReceipt.py`: Creates 10 random receipts when "Generate Cash Receipt" button pressed
@@ -192,7 +192,7 @@ The system is containerized and can be deployed to any Docker-compatible environ
 
 ## License
 
-This project is open sourced.
+This project is open source.
 
 ## Acknowledgments
 
