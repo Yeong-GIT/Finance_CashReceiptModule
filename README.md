@@ -82,11 +82,6 @@ To run the frontend in development mode:
 - `PUT /api/receipts/{id}`: Update an existing cash receipt record
 - `DELETE /api/receipts/{id}`: Delete a cash receipt record
 
-### Kafka Topics
-- `cash-receipt-topic`: Produce message to prompt message for CRUD actions
-
-![KafkaMessage](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/97985167-a060-4dc4-a73b-6ebdea523ca9)
-
 ## Code Examples
 
 ### CashReceiptController
@@ -174,10 +169,46 @@ public class CashReceiptController {
 
 This controller handles CRUD operations for cash receipts and integrates with Kafka for messaging.
 
+### Kafka Topics
+- `cash-receipt-topic`: Produce message to prompt message for CRUD actions
+
+![KafkaMessage](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/97985167-a060-4dc4-a73b-6ebdea523ca9)
+
 ### Python Scripts
 
 - `generateCashReceipt.py`: Creates 10 random receipts when "Generate Cash Receipt" button pressed
 
+## Code Examples
+
+### generateCashReceipts.py
+
+```python
+from faker import Faker
+import random
+import requests
+
+faker = Faker()
+
+def generate_cash_receipt():
+    receipt = {
+        "customerName": faker.name(),
+        "amount": round(random.uniform(10.0, 1000.0), 2),
+        "receiptDate": faker.date_this_year().isoformat()
+    }
+    print("Generated Receipt:", receipt)
+    return receipt
+
+def post_cash_receipt():
+    receipt = generate_cash_receipt()
+    response = requests.post('http://cashreceipt-service:8080/api/receipts', json=receipt)
+    print("Response:", response.json())
+    return response.json()
+
+if __name__ == "__main__":
+    for _ in range(10):
+        print(post_cash_receipt())
+```
+This python scripts creates random 10 receipts per click with "Generate Cash Receipt" button.
 
 ## Configuration
 
