@@ -217,8 +217,8 @@ This python scripts creates random 10 receipts per click with "Generate Cash Rec
 - Spring Boot configuration: `src/main/resources/application.properties`
 - Docker and Kafka configuration: `src/docker-compose.yml`
 
-## Code Examples
-```Dockerfile
+## Docker File Examples
+```Backend Dockerfile
 # Use the official OpenJDK 17 slim image as the base
 FROM openjdk:17-jdk-slim
 
