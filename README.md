@@ -98,18 +98,6 @@ To run the frontend in development mode:
 ### CashReceiptController
 
 ```java
-package gityeong.CashReceipt.controller;
-
-import gityeong.CashReceipt.entity.CashReceipt;
-import gityeong.CashReceipt.service.CashReceiptService;
-import gityeong.CashReceipt.service.KafkaProducerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 public class CashReceiptController {
