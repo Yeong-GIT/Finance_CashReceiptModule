@@ -210,6 +210,9 @@ if __name__ == "__main__":
 
 This python scripts creates random 10 receipts per click with "Generate Cash Receipt" button.
 
+![GenerateButton](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/ca50aa77-2f45-4819-8e27-253f34c3fd4b)
+
+
 ## Configuration
 
 - Spring Boot configuration: `src/main/resources/application.properties`
