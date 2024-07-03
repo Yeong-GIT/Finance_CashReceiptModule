@@ -4,11 +4,6 @@
 
 This project is a fullstack dockerized microservice system focused on CRUD (Create, Read, Update, Delete) functionalities for financial cash receipt activities. It uses Spring Boot with Kafka integration and incorporates Python scripts for insert receipt automation.
 
-## Architecture
-
-![ContainerDocker](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/1559b315-3408-4bca-904d-d6470a4a5401)
-
-
 ## Features
 
 - CRUD operations for cash receipt financial data
@@ -17,6 +12,10 @@ This project is a fullstack dockerized microservice system focused on CRUD (Crea
 - Python script integration for automated receipt generation
 - Kafka integration for real-time data processing
 - React frontend integrated with DataTable plugins
+
+## Architecture
+
+![ArchitectureDiagram](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/75055dc9-3558-4b96-8e83-8ae2ee41073e)
 
 ## Prerequisites
 - Node.js 18 or above
@@ -63,7 +62,7 @@ To run the frontend in development mode:
    ```
    docker-compose up --build
    ```
-![ContainerDocker](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/a4e78dd6-e495-4292-b417-4afd9220e594)
+![ContainerDocker](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/1559b315-3408-4bca-904d-d6470a4a5401)
 
 
 
