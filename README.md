@@ -9,9 +9,9 @@ This project is a fullstack dockerized microservice system focused on CRUD (Crea
 - CRUD operations for cash receipt financial data
 - Dockerized microservice architecture
 - Spring Boot backend
+- Python script integration for automated receipt generation
 - Kafka integration for real-time data processing
-- Python script integration for:
-- Automated receipt generation
+- React frontend integrated with DataTable plugins
 
 ## Prerequisites
 - Node.js 18 or above
@@ -29,24 +29,23 @@ This project is a fullstack dockerized microservice system focused on CRUD (Crea
    cd Finance_CashReceiptModule
    ```
 
-2. Build the Spring Boot application:
+   ## Backend Setup
+2. Ensure Docker desktop application has opened:
+   ```
+   Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+   ```
+
+3. Build the Spring Boot application:
    ```
    mvn clean install
    ```
 
-3. Build and run the Docker containers:
-   ```
-   docker-compose up --build
-   ```
-
-## Usage
-
-## Frontend Development
+## Frontend Setup
 To run the frontend in development mode:
 
 1. Navigate to the frontend directory:
    ```
-   cd frontend/cash-receipt-client
+   cd src/frontend/cash-receipt-client
    ```
 
 2. Install dependencies:
@@ -54,9 +53,10 @@ To run the frontend in development mode:
    npm install
    ```
 
-3. Start the development server:
+## Docker Setup
+1. Build and run the Docker containers:
    ```
-   npm run dev
+   docker-compose up --build
    ```
    
 ## Backend Development
@@ -73,7 +73,7 @@ To run the frontend in development mode:
 
 ### Python Scripts
 
-- `generateCashReceipt.py`: Creates 10 random receipts when button pressed
+- `generateCashReceipt.py`: Creates 10 random receipts when "Generate Cash Receipt" button pressed
 
 
 ## Configuration
@@ -81,13 +81,6 @@ To run the frontend in development mode:
 - Spring Boot configuration: `src/main/resources/application.properties`
 - Docker and Kafka configuration: `src/docker-compose.yml`
 
-## Testing
-
-Run the test suite with:
-
-```
-mvn test
-```
 
 ## Deployment
 
@@ -103,5 +96,6 @@ This project is open sourced.
 - Spring Boot
 - Apache Kafka
 - Docker
+- Data Table Plugins
 - Python community for excellent libraries
 
