@@ -82,7 +82,7 @@ To run the frontend in development mode:
 - `DELETE /api/receipts/{id}`: Delete a cash receipt record
 
 ### Kafka Topics
-- `cashreceipt-topic`: Produce message to prompt message for CRUD actions
+- `cash-receipt-topic`: Produce message to prompt message for CRUD actions
 
 ## Code Examples
 
