@@ -259,10 +259,21 @@ ENTRYPOINT ["java", "-jar", "CashReceipt-0.0.1.jar"]
 
 This Dockerfile sets up a Docker container for running a Java application along with a Python script.
 
+## PostgreSQL Database via Docker
+```
+docker exec -it postgres-cashreceiptdb psql -U postgres
+```
+### After entering postgres psql shell
+```
+\c cashreceiptdb
+```
+This command line executes postgres-salesinvoicedb from docker.
+
+![Postgres](https://github.com/Yeong-GIT/Finance_SalesInvoiceModule/assets/49313115/a89b9f7c-4ef0-4991-bc2d-48ed71a1f239)
+
 ## Deployment
 
 The system is containerized and can be deployed to any Docker-compatible environment.
-
 
 ## License
 
