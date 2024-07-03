@@ -15,7 +15,7 @@ This project is a fullstack dockerized microservice system focused on CRUD (Crea
 
 ## Architecture
 
-![ArchitectureDiagram](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/75055dc9-3558-4b96-8e83-8ae2ee41073e)
+![ArchitectureDiagram](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/8c0de7f3-6c17-49f0-a7fd-4a62871ca3fb)
 
 ## Prerequisites
 - Node.js 18 or above
@@ -210,8 +210,7 @@ if __name__ == "__main__":
 
 This python scripts creates random 10 receipts per click with "Generate Cash Receipt" button.
 
-![GenerateButton](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/ca50aa77-2f45-4819-8e27-253f34c3fd4b)
-
+![GenerateButton](https://github.com/Yeong-GIT/Finance_CashReceiptModule/assets/49313115/e0bb4017-bc0f-4200-b39b-b68dc7e23727)
 
 ## Configuration
 
